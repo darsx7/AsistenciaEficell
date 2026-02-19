@@ -96,14 +96,19 @@ Eventos para la barra superior global.
 
 ### 3.2. Panel de Notificaciones (Sección 1)
 *   **UI:** Panel lateral o popup con dos listas: "Sin leer" (fondo resaltado) y "Leídas".
+*   **Tipos de Notificación:**
+    *   **🟡 Intentando contactar:** Usuario esperando ser atendido. (Fondo destacado, badge activo).
+    *   **🟢 Ya contactado:** Otro agente se conectó. (Notificación actualizada).
 *   **Lógica de Acceso (Critical Path):**
     *   Al hacer click en notificación, ejecutar `checkSessionStatus(sessionId)`:
-    *   *Caso 1: Otro agente (`agentId != me`)* -> `Dialog: "Está [X] conectado. ¿Desea visualizar?"` -> Navegar modo `readonly`.
-    *   *Caso 2: Yo (`agentId == me`)* -> Navegar directo a `ChatView`.
-    *   *Caso 3: Inactiva (`status == 'inactive'`)* -> `Dialog: "La sesión está inactiva. ¿Desea entrar al chat?"` -> Navegar modo histórico.
-    *   *Caso 4: Sin agente (`status == 'waiting'`)* -> `Dialog: "¿Desea atender esta consulta?"` -> Asignar `agentId = me`, cambiar `status = active`, enviar Auto-Mensaje -> Navegar.
-    *   *Caso 5: Bot (`status == 'bot'`)* -> `Dialog: "Sesión activa con bot. ¿Desea visualizar?"` -> Navegar modo `readonly` (sin input ni herramientas, sin notificar usuario).
-*   **Limpieza:** Al cerrar el panel, iterar IDs visibles y actualizar `status = 'read'` en Firestore.
+    *   *Caso 1: Otro agente conectado (`agentId != me`)* -> `Dialog: "Está [X] conectado. ¿Desea visualizar?"` -> **Sí**: Visualiza el chat (modo lectura). **No**: Vuelve.
+    *   *Caso 2: Yo estoy conectado (`agentId == me`)* -> Abre el chat directamente.
+    *   *Caso 3: Sesión inactiva (`status == 'inactive'`)* -> `Dialog: "La sesión está inactiva. ¿Desea entrar al chat?"` -> **Sí**: Abre chat inactivo. **No**: Vuelve.
+    *   *Caso 4: Sin agente conectado (`status == 'waiting'`)* -> `Dialog: "¿Desea atender esta consulta?"` -> **Sí**: Toma la sesión.
+        *   -> Mensaje al usuario: "[Agente] tomó tu sesión".
+        *   -> Mensaje auto: "Hola, soy [Agente], dame un momento ahora te ayudo".
+    *   *Caso 5: Sesión con bot (`status == 'bot'`)* -> `Dialog: "Sesión activa con bot. ¿Desea visualizar?"` -> **Sí**: Abre chat en solo lectura (sin input, sin herramientas). **No notifica al usuario**.
+*   **Limpieza:** Al cerrar el panel, todas las notificaciones pasan a "leídas" automáticamente.
 
 ### 3.3. Funcionalidades del Chat (Sección 2)
 *   **Barra Superior Chat:** Mostrar nombre usuario, botón "Sesiones" (volver), botón "Transferir".
@@ -219,7 +224,7 @@ Eventos para la barra superior global.
 ### 4.4. Estados Visuales (Header)
 *   `status = 'bot'`: Icono Robot, Título "Bot Eficell".
 *   `status = 'waiting'`: Título "Conectando con algún agente disponible...", Animación loading.
-*   `status = 'active'`: Foto Agente (circular), Nombre Agente, Punto Verde 🟢. Mensaje automático de bienvenida ("Hola, soy X, dame un momento ahora te ayudo").
+*   `status = 'active'`: Foto Agente (circular), Nombre Agente, Punto Verde 🟢. Mensaje automático de bienvenida ("Hola, soy [Agente], dame un momento ahora te ayudo").
 *   `status = 'transfer_email'`: Mensaje sistema "Tu consulta fue derivada por email. Recibirás respuesta en [correo]".
 *   `status = 'inactive'`: Título "El agente se ha desconectado", Punto Negro ⚫.
 
@@ -249,7 +254,7 @@ user-chat/
 
 | Acción Agente (App) | Efecto en Firestore | Reacción Usuario (Web) |
 | :--- | :--- | :--- |
-| Click "Atender Consulta" | `status='active'`, `agentId='me'` | Header cambia a Foto Agente. Mensaje "X tomó tu sesión". Auto-msg: "Hola soy X...". |
+| Click "Atender Consulta" | `status='active'`, `agentId='me'` | Header cambia a Foto Agente. Mensaje "[Agente] tomó tu sesión". Auto-msg: "Hola, soy [Agente], dame un momento ahora te ayudo". |
 | Toggle "Habilitar Audio" | `permissions.allowAudio = true` | Botón Micrófono aparece en barra input. |
 | Envía Ubicación | Crea msg `type='location'` | Aparece burbuja con mapa interactivo y dirección. |
 | Transfiere a otro Agente | `agentId='otro_uid'` | Mensaje "Has sido transferido a [Nuevo Agente]". Cambia foto header. |
