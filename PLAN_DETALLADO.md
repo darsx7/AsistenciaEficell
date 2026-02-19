@@ -274,7 +274,77 @@ user-chat/
 
 ---
 
-## 6. Consideraciones Técnicas Adicionales
+## 6. Mapa Completo (App Agente)
+
+```mermaid
+flowchart TB
+    App["AsistenciaEficell"] --> Auth["Login"]
+    Auth --> Main["Principal"]
+
+    subgraph GlobalBar["Barra Superior Global"]
+        Bell["🔔 Notificaciones\n(sin leer / leídas)"]
+    end
+
+    Bell --> NotifAccess["Lógica de acceso:\nOtro agente | Yo | Inactiva\nSin agente | Bot"]
+
+    Main --> NavBar
+
+    subgraph NavBar["Navegación Inferior"]
+        Chat["💬 Chat"]
+        Profile["👤 Perfil"]
+        Email["📧 Correos"]
+        Settings["⚙️ Config"]
+    end
+
+    Chat --> ChatScreen
+
+    subgraph ChatScreen["Chat"]
+        CS_Top["Sesiones | Nombre | Transferir"]
+        CS_Msgs["Mensajes + Selección"]
+        CS_Input["Texto + 📎 + 🎙️"]
+    end
+
+    CS_Top --> Sessions["Sesiones con ID\n+ lógica de acceso"]
+    CS_Top --> Transfer["Transferir: Chat / Email"]
+    CS_Top --> Adjuntos["Panel Adjuntos\n📁 | 🖼️ | 📍"]
+    CS_Input --> Attach["Cámara | Archivos\nMedia | Ubicación"]
+    CS_Input --> Audio["🎙️ Hold/Pause/Send"]
+
+    Sessions --> Info["ℹ️ Info + Opciones usuario\n+ Adjuntos + Acciones"]
+```
+
+---
+
+## 7. Resumen de Implementación (Checklist)
+
+| # | Característica | Estado |
+|---|---|---|
+| 1 | 🔔 Panel de notificaciones global (sin leer / leídas) | 🔲 |
+| 2 | Lógica de acceso al chat (otro agente, yo, inactiva, sin agente, bot) | 🔲 |
+| 3 | Mensajes automáticos al tomar sesión | 🔲 |
+| 4 | Notificaciones push externas con acceso directo | 🔲 |
+| 5 | Chat en tiempo real | 🔲 |
+| 6 | Cámara: foto + editor / video + editor | 🔲 |
+| 7 | Archivos: cualquier tipo, auto-detect imágenes | 🔲 |
+| 8 | Galería: imágenes + editor / videos + editor | 🔲 |
+| 9 | Editor imagen: texto + lápiz + recortar | 🔲 |
+| 10 | Editor video: acortar + editar + silenciar + auto-apertura | 🔲 |
+| 11 | Compresión de medios | 🔲 |
+| 12 | Audio: hold, pausar, reanudar, reproducir, borrar, enviar | 🔲 |
+| 13 | Previsualización adjuntos (5 imgs + 2 archivos + ...) | 🔲 |
+| 14 | Ubicación: mapa, buscar, GPS, mover, dirección editable | 🔲 |
+| 15 | Selección múltiple + eliminación mensajes | 🔲 |
+| 16 | Panel adjuntos: archivos, media/audios, ubicaciones | 🔲 |
+| 17 | Sesiones con ID + lógica de acceso | 🔲 |
+| 18 | Control de opciones del usuario (habilitar/deshabilitar) | 🔲 |
+| 19 | Info sesión + adjuntos + transfer email info | 🔲 |
+| 20 | Desconexión + eliminación de chat | 🔲 |
+| 21 | Transferir chat / email con formulario | 🔲 |
+| 22 | Perfil (foto visible al usuario web) | 🔲 |
+| 23 | Correos (placeholder) | 🔲 |
+| 24 | Configuración: tema, texto, GPS, mic, notif, burbuja | 🔲 |
+
+## 8. Consideraciones Técnicas Adicionales
 
 *   **Compresión:** Uso de `browser-image-compression` en ambos clientes antes de subir a Storage.
 *   **Seguridad:** `firestore.rules` bloqueará lectura de `sessions` a usuarios anónimos salvo la suya propia (`request.auth.uid == resource.data.id` o similar por token). Agentes tienen lectura global.
