@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Función auxiliar para verificar si es agente
+    function isAgent() {
+      return request.auth != null && request.auth.token.email != null; // Simplificado: Agentes tienen email
+    }
+
+    // Colección de Usuarios (Agentes)
+    match /users/{userId} {
+      allow read: if isAgent();
+      allow write: if isAgent() && request.auth.uid == userId; // Solo editar su propio perfil
+    }
+
+    // Colección de Sesiones
+    match /sessions/{sessionId} {
+      // Cualquiera puede crear una sesión (Usuario anónimo)
+      allow create: if true;
+
+      // Agentes ven todas. Usuario ve la suya (por ID o owner).
+      // Si el usuario es anónimo, el sessionId podría ser su UID o guardamos ownerId.
+      allow read: if isAgent() || (request.auth != null && resource.data.id == sessionId);
+
+      // Agentes actualizan todo (permisos, estado). Usuario puede actualizar estado (ej: cerrar).
+      allow update: if isAgent() || (request.auth != null && resource.data.id == sessionId);
+
+      // Subcolección Mensajes
+      match /messages/{messageId} {
+        allow read, write: if isAgent() || (request.auth != null); // Refinar para production
+      }
+    }
+
+    // Colección de Notificaciones
+    match /notifications/{notificationId} {
+      allow read, write: if isAgent();
+    }
+  }
+}

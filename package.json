@@ -1,0 +1,10 @@
+{
+  "name": "asistencia-eficell",
+  "version": "1.0.0",
+  "description": "Sistema de Chat Eficell - Monorepo",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

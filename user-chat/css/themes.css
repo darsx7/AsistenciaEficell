@@ -1,0 +1,18 @@
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --background-color: #f8f9fa;
+    --chat-bg: #ffffff;
+    --message-out-bg: #dcf8c6;
+    --message-in-bg: #ffffff;
+    --text-color: #333;
+    --header-height: 60px;
+    --input-height: 50px;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+}
