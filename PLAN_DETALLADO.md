@@ -275,20 +275,35 @@ flowchart TB
     *   Si `allowAudio == true` -> Mostrar botón Micrófono.
     *   Si `allowFile == true` -> Mostrar botón Clip.
     *   Si `allowLocation == true` -> Mostrar botón Mapa.
-*   **Adjuntos Usuario (Simplificado):**
-    *   Click Clip -> Selector único -> Input File (Video/Img/Archivo).
-    *   Previsualización simple con "X" para eliminar (confirmación "¿Eliminar este adjunto?"). **Sin editor.**
-    *   Compresión automática.
-*   **Audio Usuario (Simplificado):**
-    *   UI Simple: `Hold` (mantener presionado) para grabar. Soltar (`Pause`) para escuchar (solo pausar, sin reanudar). Botones extra: `Trash` (borrar), `Send` (enviar). **Sin botón resume.**
-*   **Mensajes Recibidos:**
-    *   Texto (burbuja).
-    *   Imagen (miniatura expandible).
-    *   Video (reproductor inline).
-    *   Audio (barra reproducción).
-    *   Archivo (nombre + botón descargar).
-    *   Ubicación (mapa preview + dirección).
-    *   Sistema (centrados).
+
+#### 4.3.1 Adjuntos Usuario (Simplificado)
+| Regla | Detalle |
+|---|---|
+| **Selector** | Un solo botón 📎 → selector general (imágenes, videos, archivos) |
+| **Sin herramientas avanzadas** | Sin editor de imagen/video, lápiz ni recorte |
+| **Eliminar antes de enviar** | Cada adjunto muestra **✕** → confirmación: *"¿Eliminar este adjunto?"* |
+| **Compresión** | Imágenes y videos se comprimen automáticamente |
+
+#### 4.3.2 Audio Usuario (Simplificado)
+| Control | Función |
+|---|---|
+| **🎙️ Hold** | Mantener presionado para grabar |
+| **⏸️ Pausar** | Pausa y permite escuchar lo grabado |
+| **🗑️ Borrar** | Elimina la grabación |
+| **📤 Enviar** | Envía el audio |
+
+> Sin opción de reanudar. El pausar es solo para escuchar. Solo puede eliminar o enviar.
+
+#### 4.3.3 Mensajes Recibidos (Visualización)
+| Tipo | Visualización |
+|---|---|
+| **Texto** | Burbuja de chat |
+| **Imagen** (del agente) | Miniatura expandible |
+| **Video** (del agente) | Reproductor inline |
+| **Audio** (del agente) | Barra de reproducción |
+| **Archivo** (del agente) | Nombre + botón descargar |
+| **Ubicación** (del agente) | Mapa preview + dirección. Al tocar → Maps |
+| **Sistema** | Mensajes centrados (conexión, transferencia, etc.) |
 
 ### 4.4. Estados Visuales (Header)
 
