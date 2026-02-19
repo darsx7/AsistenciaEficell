@@ -152,7 +152,11 @@ Eventos para la barra superior global.
     *   Acciones: ⬇️ Descargar (Siempre), 👁️ Previsualizar (Solo doc/img/vid/audio), 💬 Abrir en chat (Siempre, navega al mensaje).
 
 ### 3.4. Gestión de Sesiones (Sección 3)
-*   **Lista de Sesiones:** Tabs: "Activas" (🟢), "Inactivas/Bot" (⚫/🤖), "Transferidas" (📧). Indicadores en tiempo real.
+*   **Lista de Sesiones:** "Panel de Sesiones" con indicadores de estado:
+    *   🟢 Activa (ID, Nombre).
+    *   ⚫ Inactiva (ID, Nombre).
+    *   📧 Transferida (ID, Nombre).
+    *   🤖 Bot (ID, Nombre).
 *   **Info de Sesión (Botón ℹ️):**
     *   Acceso: Desde la Lista de Sesiones (icono ℹ️).
     *   Mostrar metadatos (ID, Hora conexión, Hora último mensaje, IP, Estado, Agente conectado, Transfer email info).
@@ -166,7 +170,8 @@ Eventos para la barra superior global.
         *   "Eliminar chat": Módulo flotante confirmación. Chat eliminado.
 
 ### 3.5. Transferencia (Sección 4)
-*   **A Chat:** Seleccionar agente de lista `users` (online) -> Actualizar `agentId` -> Mensaje sistema "Transferido a X". Si "Yo mismo" -> Vuelve al chat sin mensaje.
+*   **Escenario: Otro agente:** Acción: Confirma y notifica al usuario.
+*   **Escenario: Yo mismo:** Acción: Vuelve al chat sin mensaje.
 *   **A Email:** Formulario (Asunto, Email Usuario, Mensaje, ID chat auto) -> Actualizar `status = 'transfer_email'`, guardar datos en documento -> Enviar correo.
 
 ### 3.6. Perfil y Configuración (Sección 5)
