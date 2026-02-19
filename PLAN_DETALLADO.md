@@ -113,41 +113,43 @@ Eventos para la barra superior global.
 ### 3.3. Funcionalidades del Chat (Sección 2)
 *   **Barra Superior Chat:** Mostrar nombre usuario, botón "Sesiones" (volver), botón "Transferir".
 *   **Menú Adjuntos (Agente):** Botón Clip abre `ActionSheet`:
-    *   **Cámara:** Input nativo `capture="environment"`. Si es foto -> `ImageEditor`. Si es video -> `VideoEditor`.
-    *   **Archivos:** Input `type="file"`. **Auto-detect:** Si el archivo seleccionado es imagen (`image/*`), abrir `ImageEditor` automáticamente.
-    *   **Media:** Input `type="file" accept="image/*,video/*"`. Si imagen -> `ImageEditor`. Si video -> `VideoEditor`.
-    *   **Ubicación:** Abrir modal con Mapa.
+    *   **Cámara:** 📷 (Foto / Video). Si foto -> `ImageEditor`. Si video -> `VideoEditor`.
+    *   **Archivos:** 📁 Cualquier tipo. **Auto-detect:** Si el archivo seleccionado es imagen (`image/*`), abrir `ImageEditor` automáticamente.
+    *   **Media:** 🖼️ (Imágenes / Videos). Galería. Si imagen -> `ImageEditor`. Si video -> `VideoEditor`.
+    *   **Ubicación:** 📍 Mapa interactivo.
 *   **Editores Multimedia:**
-    *   **Imágenes:** Componente con `Canvas`. Herramientas: Texto, Lápiz + color, Recortar (librería `cropperjs` o similar).
-    *   **Video:** Componente con `<video>`. UI con slider de rango (inicio-fin). Toggle "Silenciar". **Lista Inferior:** Muestra todos los videos seleccionados para enviar; permite seleccionar uno para editar. **Persistencia:** Al reabrir el editor sobre un adjunto pendiente (o cambiar entre videos de la lista), restaurar el fragmento previamente seleccionado. **Auto-apertura:** Al adjuntar video, el editor se abre automáticamente.
-*   **Audio:** Componente `AudioRecorder`. Eventos: `touchstart` (Hold para grabar), `touchend` (pausar). Botones: **Resume** (▶️ reanudar grabación), Pause (⏸️), Play (▶️ reproducir), Trash (🗑️ borrar), Send (📤 enviar).
-*   **Ubicación:** Mapa (Leaflet/Google Maps). Pin arrastrable. Botón "GPS" (centrar). Mover mapa (pin al centro). Buscar dirección. Botón "Enviar" -> Abre **Módulo de Confirmación:**
-    *   Campo editable: Dirección detectada.
-    *   Botón Cancelar (vuelve al mapa).
-    *   Botón Enviar (confirma).
-*   **Previsualización Adjuntos (Reglas Visuales):**
+    *   **Imágenes:** Componente con `Canvas`. Herramientas: ✏️ Texto, 🖊️ Lápiz + color, ✂️ Recortar (librería `cropperjs` o similar).
+    *   **Video:** Componente con `<video>`. Herramientas: ✂️ Acortar / fragmento, ✏️ Editar, 🔇 Silenciar. **Lista Inferior:** Muestra todos los videos a enviar. Seleccionar cada uno para editar. **Persistencia:** Al re-editar, muestra el fragmento previamente seleccionado. **Auto-apertura:** Al adjuntar video, el editor se abre automáticamente.
+*   **Audio:** Componente `AudioRecorder`. Eventos: `touchstart` (🎙️ Hold para grabar), `touchend` (pausar). Botones: **Resume** (▶️ reanudar grabación), Pause (⏸️), Play (▶️ Reproducir), Trash (🗑️ Borrar), Send (📤 Enviar).
+*   **Ubicación:** Mapa (Leaflet/Google Maps).
+    *   **Controles:** 🔍 Buscar (Superior derecha), ⛶ Mover (Superior izquierda), 📍 GPS (Al lado de ⛶).
+    *   **Enviar:** Botón inferior. Abre **Módulo de Confirmación:**
+        *   Campo dirección: Texto editable con la dirección detectada.
+        *   Cancelar: Cierra solo el módulo, vuelve al mapa tal como estaba.
+        *   Enviar: Confirma y envía la ubicación al chat.
+*   **Previsualización Adjuntos:**
     *   **Imágenes/Videos:** Mostrar hasta 5 miniaturas.
     *   **Archivos:** Mostrar hasta 2 nombres truncados (7 chars + `...`).
     *   **Indicador `(...)`:**
-        *   Si solo hay media: Mostrar al lado de imágenes.
-        *   Si solo hay archivos: Mostrar al lado de archivos.
-        *   Si hay ambos: Mostrar al lado de archivos.
-    *   **Click en adjunto pendiente:**
-        *   Imagen -> Módulo preview + ✏️ (abre editor imagen) + ✕ cerrar.
-        *   Video -> Módulo preview + ✏️ (abre editor video con fragmento actual) + ✕ cerrar.
-        *   Otro archivo -> Módulo nombre completo + 🗑️ eliminar + ✕ cerrar.
+        *   Si solo hay media: `(...)` al lado de imágenes.
+        *   Si solo hay archivos: `(...)` al lado de archivos.
+        *   Si hay ambos: `(...)` al lado de archivos.
+    *   **Click en adjunto pendiente `(...)`:**
+        *   **Imagen:** Módulo con previsualización + ✏️ lápiz (abre editor imagen) + ✕ cerrar.
+        *   **Video:** Módulo con previsualización + ✏️ lápiz (abre editor video con fragmento actual) + ✕ cerrar.
+        *   **Otro archivo:** Módulo con nombre completo + extensión + 🗑️ eliminar + ✕ cerrar.
 *   **Selección y Eliminación de Mensajes:**
-    *   Selección múltiple (long press -> mantener presionado).
+    *   Selección múltiple (Mantener presionado -> seleccionar más).
     *   Acción "Eliminar": Borrado lógico (`deleted: true`) para todos (incluye adjuntos).
     *   Confirmación: "¿Eliminar X mensajes?".
     *   **Visual:** El mensaje se elimina silenciosamente del chat (no muestra "eliminado").
 *   **Panel de Adjuntos (al tocar nombre de usuario):**
     *   Acceso: Al tocar el nombre del usuario en la barra superior.
     *   Tabs:
-        *   **Archivos:** Sin imágenes, videos ni audios.
-        *   **Media / Audios:** Imágenes, videos y audios.
-        *   **Ubicaciones:** Ubicaciones compartidas.
-    *   Acciones: Descargar, Previsualizar (solo doc/img/vid/audio), Abrir en chat.
+        *   **📁 Archivos:** Sin imágenes, videos ni audios.
+        *   **🖼️ Media / Audios:** Imágenes, videos y audios.
+        *   **📍 Ubicaciones:** Ubicaciones compartidas.
+    *   Acciones: ⬇️ Descargar (Siempre), 👁️ Previsualizar (Solo doc/img/vid/audio), 💬 Abrir en chat (Siempre, navega al mensaje).
 
 ### 3.4. Gestión de Sesiones (Sección 3)
 *   **Lista de Sesiones:** Tabs: "Activas" (🟢), "Inactivas/Bot" (⚫/🤖), "Transferidas" (📧). Indicadores en tiempo real.
