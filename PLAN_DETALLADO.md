@@ -114,15 +114,19 @@ Eventos para la barra superior global.
     *   **Ubicación:** Abrir modal con Mapa.
 *   **Editores Multimedia:**
     *   **Imágenes:** Componente con `Canvas`. Herramientas: Texto, Lápiz + color, Recortar (librería `cropperjs` o similar).
-    *   **Video:** Componente con `<video>`. UI con slider de rango (inicio-fin). Lógica para guardar metadata de recorte. Toggle "Silenciar". **Persistencia:** Al reabrir el editor sobre un adjunto pendiente, restaurar el fragmento previamente seleccionado. **Auto-apertura:** Al adjuntar video, el editor se abre automáticamente.
+    *   **Video:** Componente con `<video>`. UI con slider de rango (inicio-fin). Toggle "Silenciar". **Lista Inferior:** Muestra todos los videos seleccionados para enviar; permite seleccionar uno para editar. **Persistencia:** Al reabrir el editor sobre un adjunto pendiente (o cambiar entre videos de la lista), restaurar el fragmento previamente seleccionado. **Auto-apertura:** Al adjuntar video, el editor se abre automáticamente.
 *   **Audio:** Componente `AudioRecorder`. Eventos: `touchstart` (Hold para grabar), `touchend` (pausar). Botones: **Resume** (▶️ reanudar grabación), Pause (⏸️), Play (▶️ reproducir), Trash (🗑️ borrar), Send (📤 enviar).
 *   **Ubicación:** Mapa (Leaflet/Google Maps). Pin arrastrable. Botón "GPS" (centrar). Mover mapa (pin al centro). Buscar dirección. Botón "Enviar" -> Abre **Módulo de Confirmación:**
     *   Campo editable: Dirección detectada.
     *   Botón Cancelar (vuelve al mapa).
     *   Botón Enviar (confirma).
-*   **Previsualización Adjuntos:**
-    *   Mostrar hasta 5 miniaturas para imágenes/video.
-    *   Archivos: Nombre truncado (7 chars + `...`).
+*   **Previsualización Adjuntos (Reglas Visuales):**
+    *   **Imágenes/Videos:** Mostrar hasta 5 miniaturas.
+    *   **Archivos:** Mostrar hasta 2 nombres truncados (7 chars + `...`).
+    *   **Indicador `(...)`:**
+        *   Si solo hay media: Mostrar al lado de imágenes.
+        *   Si solo hay archivos: Mostrar al lado de archivos.
+        *   Si hay ambos: Mostrar al lado de archivos.
     *   **Click en adjunto pendiente:**
         *   Imagen -> Módulo preview + ✏️ (abre editor imagen) + ✕ cerrar.
         *   Video -> Módulo preview + ✏️ (abre editor video con fragmento actual) + ✕ cerrar.
