@@ -172,13 +172,17 @@ Eventos para la barra superior global.
 ### 3.5. Transferencia (Sección 4)
 *   **Escenario: Otro agente:** Acción: Confirma y notifica al usuario.
 *   **Escenario: Yo mismo:** Acción: Vuelve al chat sin mensaje.
-*   **A Email:** Formulario (Asunto, Email Usuario, Mensaje, ID chat auto) -> Actualizar `status = 'transfer_email'`, guardar datos en documento -> Enviar correo.
+*   **A Email:** Seleccionar agente -> Formulario (Asunto, Email Usuario, Mensaje, ID chat auto) -> Actualizar `status = 'transfer_email'`, guardar datos en documento -> Enviar correo.
 
 ### 3.6. Perfil y Configuración (Sección 5)
-*   **Perfil:** Formulario edición (Nombre visible, Contraseña, Correo). Ver/Cambiar foto (visible al usuario).
-*   **Config:** `localStorage` para preferencias.
-    *   Toggles: Modo oscuro/claro, GPS, Micrófono, Notificaciones externas, Burbuja flotante.
-    *   Slider: Tamaño texto.
+*   **Perfil:**
+    *   **Foto:** Ver / cambiar. Solo foto visible al usuario web.
+    *   **Nombre:** Editar nombre visible.
+    *   **Correo:** Vincular email.
+    *   **Contraseña:** Cambiar.
+*   **Configuración:** `localStorage` para preferencias.
+    *   **Toggles:** Modo oscuro/claro, GPS, Micrófono, Notificaciones externas, Burbuja flotante.
+    *   **Slider:** Tamaño texto.
 
 ---
 
