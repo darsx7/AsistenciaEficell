@@ -239,6 +239,23 @@ flowchart TB
     ChatWindow -->|✕| Bubble
 ```
 
+| Diferencia con standalone | Detalle |
+|---|---|
+| **Sin botón de bot** | No tiene el botón "🔗 Conectar con agente" |
+| **Solo chat** | Espacio preparado para integrar el bot existente |
+| **Misma funcionalidad** | Una vez conectado, funciona igual al standalone |
+
+##### 4.1.2.1 Burbuja (Detalle)
+
+| Propiedad | Detalle |
+|---|---|
+| **Posición** | Inferior derecha, fija |
+| **Badge** | Cantidad de mensajes no leídos |
+| **Animación** | Pulso suave con mensajes nuevos |
+| **Apertura** | Expansión suave desde la burbuja |
+| **Cierre** | Contracción hacia la burbuja (no pierde el chat) |
+| **Sesión** | Al abrir, muestra *"Reanudar / Nueva sesión"* si hay sesión previa |
+
 ### 4.2. Lógica del Bot (Pre-conexión)
 
 ```mermaid
@@ -343,6 +360,30 @@ user-chat/
 └── assets/
     └── icons/
 ```
+
+### 4.6. Persistencia de Sesión
+
+La sesión del usuario persiste entre recargas y entre ambas vistas (standalone y burbuja).
+
+```mermaid
+flowchart TB
+    Open["Usuario abre o\nrecarga la página"] --> Check{"Sesión previa\ndetectada?"}
+    Check -->|Sí| Dialog["Cuadro:\nReanudar / Nueva sesión"]
+    Check -->|No| NewChat["Inicia chat\ndesde cero"]
+    Dialog -->|Reanudar| Restore["Restaura mensajes\ny estado anterior"]
+    Dialog -->|Nueva sesión| NewChat
+
+    OpenBubble["Usuario abre\nla burbuja"] --> Check
+```
+
+| Regla | Detalle |
+|---|---|
+| **Identificación** | Cookies del navegador + IP pública como respaldo |
+| **Al recargar página** | Aparece cuadro: *"Reanudar / Iniciar nueva sesión"* |
+| **Al abrir burbuja** | Mismo cuadro si hay sesión previa |
+| **Compartida** | La sesión persiste entre standalone y burbuja |
+| **Reanudar** | Restaura historial de mensajes y estado de conexión |
+| **Nueva sesión** | Inicia chat limpio desde el bot |
 
 ---
 
