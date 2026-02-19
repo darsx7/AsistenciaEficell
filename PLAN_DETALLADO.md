@@ -71,6 +71,7 @@ Cada documento representa una conexión de un usuario web.
     *   `duration`: (Audio/Video) Segundos.
     *   `fileName`: (Archivos) Nombre original.
     *   `location`: (Mapas) `{ lat, lng, address }`.
+    *   `deleted`: Boolean (para borrado lógico).
 
 ### Colección `notifications` (Global App Agente)
 Eventos para la barra superior global.
@@ -97,69 +98,92 @@ Eventos para la barra superior global.
 *   **UI:** Panel lateral o popup con dos listas: "Sin leer" (fondo resaltado) y "Leídas".
 *   **Lógica de Acceso (Critical Path):**
     *   Al hacer click en notificación, ejecutar `checkSessionStatus(sessionId)`:
-    *   *Caso 1: Otro agente (`agentId != me`)* -> `Dialog: "¿Visualizar?"` -> Navegar modo `readonly`.
+    *   *Caso 1: Otro agente (`agentId != me`)* -> `Dialog: "Está [X] conectado. ¿Desea visualizar?"` -> Navegar modo `readonly`.
     *   *Caso 2: Yo (`agentId == me`)* -> Navegar directo a `ChatView`.
-    *   *Caso 3: Inactiva (`status == 'inactive'`)* -> `Dialog: "¿Entrar?"` -> Navegar modo histórico.
-    *   *Caso 4: Sin agente (`status == 'waiting'`)* -> `Dialog: "¿Atender?"` -> Asignar `agentId = me`, cambiar `status = active`, enviar Auto-Mensaje -> Navegar.
-    *   *Caso 5: Bot (`status == 'bot'`)* -> `Dialog: "¿Visualizar?"` -> Navegar modo `readonly` (sin input).
+    *   *Caso 3: Inactiva (`status == 'inactive'`)* -> `Dialog: "La sesión está inactiva. ¿Desea entrar al chat?"` -> Navegar modo histórico.
+    *   *Caso 4: Sin agente (`status == 'waiting'`)* -> `Dialog: "¿Desea atender esta consulta?"` -> Asignar `agentId = me`, cambiar `status = active`, enviar Auto-Mensaje -> Navegar.
+    *   *Caso 5: Bot (`status == 'bot'`)* -> `Dialog: "Sesión activa con bot. ¿Desea visualizar?"` -> Navegar modo `readonly` (sin input ni herramientas, sin notificar usuario).
 *   **Limpieza:** Al cerrar el panel, iterar IDs visibles y actualizar `status = 'read'` en Firestore.
 
 ### 3.3. Funcionalidades del Chat (Sección 2)
 *   **Barra Superior Chat:** Mostrar nombre usuario, botón "Sesiones" (volver), botón "Transferir".
 *   **Menú Adjuntos (Agente):** Botón Clip abre `ActionSheet`:
     *   **Cámara:** Input nativo `capture="environment"`. Si es foto -> `ImageEditor`. Si es video -> `VideoEditor`.
-    *   **Archivos:** Input `type="file"`.
-    *   **Media:** Input `type="file" accept="image/*,video/*"`.
+    *   **Archivos:** Input `type="file"`. **Auto-detect:** Si el archivo seleccionado es imagen (`image/*`), abrir `ImageEditor` automáticamente.
+    *   **Media:** Input `type="file" accept="image/*,video/*"`. Si imagen -> `ImageEditor`. Si video -> `VideoEditor`.
     *   **Ubicación:** Abrir modal con Mapa.
 *   **Editores Multimedia:**
-    *   **Imágenes:** Componente con `Canvas`. Herramientas: Dibujo libre (color), Texto sobre imagen, Recorte (librería `cropperjs` o similar).
-    *   **Video:** Componente con `<video>`. UI con slider de rango (inicio-fin). Lógica para guardar metadata de recorte (procesamiento en cliente si es posible via ffmpeg.wasm o solo metadata). Toggle "Silenciar".
-*   **Audio:** Componente `AudioRecorder`. Eventos: `touchstart` (grabar), `touchend` (pausar). Botones: Play (escuchar), Trash (borrar), Send (subir y enviar).
-*   **Ubicación:** Mapa (Leaflet/Google Maps). Pin arrastrable. Botón "GPS" (centrar). Input dirección editable (Reverse Geocoding). Botón "Enviar" -> Mensaje tipo `location`.
-*   **Mensajes:**
-    *   Selección múltiple (long press) -> Toolbar inferior "Eliminar".
-    *   Eliminación lógica (`deleted: true`) visible solo para admins/agentes, oculto para usuario.
+    *   **Imágenes:** Componente con `Canvas`. Herramientas: Texto, Lápiz + color, Recortar (librería `cropperjs` o similar).
+    *   **Video:** Componente con `<video>`. UI con slider de rango (inicio-fin). Lógica para guardar metadata de recorte. Toggle "Silenciar". **Persistencia:** Al reabrir el editor sobre un adjunto pendiente, restaurar el fragmento previamente seleccionado. **Auto-apertura:** Al adjuntar video, el editor se abre automáticamente.
+*   **Audio:** Componente `AudioRecorder`. Eventos: `touchstart` (Hold para grabar), `touchend` (pausar). Botones: **Resume** (▶️ reanudar grabación), Pause (⏸️), Play (▶️ reproducir), Trash (🗑️ borrar), Send (📤 enviar).
+*   **Ubicación:** Mapa (Leaflet/Google Maps). Pin arrastrable. Botón "GPS" (centrar). Mover mapa (pin al centro). Buscar dirección. Botón "Enviar" -> Abre **Módulo de Confirmación:**
+    *   Campo editable: Dirección detectada.
+    *   Botón Cancelar (vuelve al mapa).
+    *   Botón Enviar (confirma).
+*   **Previsualización Adjuntos:**
+    *   Mostrar hasta 5 miniaturas para imágenes/video.
+    *   Archivos: Nombre truncado (7 chars + `...`).
+    *   **Click en adjunto pendiente:**
+        *   Imagen -> Módulo preview + ✏️ (abre editor imagen) + ✕ cerrar.
+        *   Video -> Módulo preview + ✏️ (abre editor video con fragmento actual) + ✕ cerrar.
+        *   Otro archivo -> Módulo nombre completo + 🗑️ eliminar + ✕ cerrar.
+*   **Selección y Eliminación de Mensajes:**
+    *   Selección múltiple (long press -> mantener presionado).
+    *   Acción "Eliminar": Borrado lógico (`deleted: true`) para todos (incluye adjuntos).
+    *   Confirmación: "¿Eliminar X mensajes?".
+    *   **Visual:** El mensaje se elimina silenciosamente del chat (no muestra "eliminado").
 
 ### 3.4. Gestión de Sesiones (Sección 3)
 *   **Lista de Sesiones:** Tabs: "Activas" (🟢), "Inactivas/Bot" (⚫/🤖), "Transferidas" (📧). Indicadores en tiempo real.
 *   **Info de Sesión (Botón ℹ️):**
-    *   Mostrar metadatos (ID, Hora, IP).
-    *   **Toggles de Control Usuario:**
+    *   Mostrar metadatos (ID, Hora conexión, Hora último mensaje, IP, Estado, Agente conectado, Transfer email info).
+    *   **Toggles de Control Usuario (Default: Off ❌):**
+        *   `Switch Adjuntar archivos`: Actualiza `session.permissions.allowFile`.
         *   `Switch Audio`: Actualiza `session.permissions.allowAudio`.
-        *   `Switch Archivos`: Actualiza `session.permissions.allowFile`.
         *   `Switch Ubicación`: Actualiza `session.permissions.allowLocation`.
+    *   **Panel de Adjuntos (Usuario):** Al tocar nombre usuario -> Tabs:
+        *   **Archivos:** Sin imágenes, videos ni audios.
+        *   **Media / Audios:** Imágenes, videos y audios.
+        *   **Ubicaciones:** Ubicaciones compartidas.
+        *   Acciones: Descargar, Previsualizar (solo doc/img/vid/audio), Abrir en chat.
     *   **Acciones:**
-        *   "Desconectarme": `agentId = null`, `status = 'waiting'` (o inactive).
-        *   "Eliminar chat": Borrado lógico o físico (según política).
+        *   "Desconectarme": Módulo flotante confirmación. Si no hay agentes -> inactiva.
+        *   "Eliminar chat": Módulo flotante confirmación. Chat eliminado.
 
 ### 3.5. Transferencia (Sección 4)
-*   **A Chat:** Seleccionar agente de lista `users` (online) -> Actualizar `agentId` -> Mensaje sistema "Transferido a X".
-*   **A Email:** Formulario (Asunto, Email, Mensaje) -> Actualizar `status = 'transfer_email'`, guardar datos en documento -> Enviar correo (Trigger Cloud Function o cliente).
+*   **A Chat:** Seleccionar agente de lista `users` (online) -> Actualizar `agentId` -> Mensaje sistema "Transferido a X". Si "Yo mismo" -> Vuelve al chat sin mensaje.
+*   **A Email:** Formulario (Asunto, Email Usuario, Mensaje, ID chat auto) -> Actualizar `status = 'transfer_email'`, guardar datos en documento -> Enviar correo.
 
 ### 3.6. Perfil y Configuración (Sección 5)
-*   **Perfil:** Formulario edición (Nombre, Pass). Subida de foto perfil.
-*   **Config:** `localStorage` para preferencias locales (Tema oscuro, tamaño fuente).
+*   **Perfil:** Formulario edición (Nombre visible, Contraseña, Correo). Ver/Cambiar foto (visible al usuario).
+*   **Config:** `localStorage` para preferencias.
+    *   Toggles: Modo oscuro/claro, GPS, Micrófono, Notificaciones externas, Burbuja flotante.
+    *   Slider: Tamaño texto.
 
 ---
 
 ## 4. Análisis Detallado: Chat Usuario Web (`ChatUsuarioWeb.md`)
 
 ### 4.1. Modos de Visualización
-*   **Standalone (`index.html`):** Layout completo. Header con Botón "Conectar".
-*   **Burbuja (`bubble.html`):** Layout transparente. Botón flotante abre iframe/div de chat. Sin botón "Conectar" (asume flujo directo o espera).
+*   **Standalone (`index.html`):** Layout completo. Header con Botón "Conectar con agente". Botón "Abrir vista burbuja".
+*   **Burbuja (`bubble.html`):** Layout transparente. Burbuja flotante inferior derecha.
+    *   **Animación:** Pulso suave cuando hay mensajes nuevos. Badge contador.
+    *   Al click -> Abre chat flotante (sin botón conectar, sin botón de bot).
 *   **Persistencia:** Al cargar, verificar `localStorage.getItem('sessionId')`. Si existe -> `getDoc(firestore)`.
-    *   Si hay sesión previa: Mostrar Modal "Reanudar / Nueva".
+    *   Si hay sesión previa: Mostrar Modal "Reanudar / Nueva sesión".
     *   "Reanudar": Cargar historial `messages`.
-    *   "Nueva": Borrar ID, iniciar limpio.
+    *   "Nueva": Borrar ID, iniciar limpio (fase Bot).
+    *   Compartida entre standalone y burbuja.
 
 ### 4.2. Lógica del Bot (Pre-conexión)
 *   Estado inicial `status = 'bot'`.
-*   Usuario escribe -> `bot.js` detecta input -> `setTimeout` -> Respuesta predefinida ("Mensaje de bot").
+*   Usuario escribe -> `bot.js` detecta input -> `setTimeout` -> Respuesta predefinida ("mensaje de bot").
 *   **Botón Conectar (Standalone):**
-    *   Click -> Mensaje Bot "¿Conectar con agente?".
-    *   Usuario "Sí" -> Crear documento `sessions` (`status='waiting'`), crear notificación en App Agente. Mensaje sistema "Conectando...".
-    *   Usuario "No" -> Bot "¿Nueva consulta?".
-        *   "Nueva" -> Insertar separador visual "--- Nueva Consulta ---".
+    *   Click -> Mensaje Bot "¿Deseas conectar con un agente? Sí / No".
+    *   Usuario "Sí" -> Mensaje auto "Conectando con algún agente disponible..." -> Notifica agentes -> Estado `waiting`.
+    *   Usuario "No" -> Bot "¿Nueva consulta o deseas seguir?".
+        *   "Nueva consulta" -> Separador visual "--- Nueva consulta ---".
+        *   "Seguir" -> Vuelve al chat con bot.
 
 ### 4.3. Interfaz de Chat y Input
 *   **Restricción Default:** Solo input texto visible.
@@ -169,18 +193,26 @@ Eventos para la barra superior global.
     *   Si `allowFile == true` -> Mostrar botón Clip.
     *   Si `allowLocation == true` -> Mostrar botón Mapa.
 *   **Adjuntos Usuario (Simplificado):**
-    *   Click Clip -> Input File (Video/Img).
-    *   Previsualización simple con "X" para eliminar.
-    *   Click Enviar -> Subir a Storage -> Crear mensaje.
-*   **Audio Usuario:**
-    *   UI Simple: Botón presionado (Grabar), Soltar (Pausar). Botones extra: Borrar / Enviar. (Sin seek, sin reanudar).
+    *   Click Clip -> Selector único -> Input File (Video/Img/Archivo).
+    *   Previsualización simple con "X" para eliminar (confirmación "¿Eliminar este adjunto?"). **Sin editor.**
+    *   Compresión automática.
+*   **Audio Usuario (Simplificado):**
+    *   UI Simple: `Hold` (mantener presionado) para grabar. Soltar (`Pause`) para escuchar. Botones extra: `Trash` (borrar), `Send` (enviar). **Sin reanudar.**
+*   **Mensajes Recibidos:**
+    *   Texto (burbuja).
+    *   Imagen (miniatura expandible).
+    *   Video (reproductor inline).
+    *   Audio (barra reproducción).
+    *   Archivo (nombre + botón descargar).
+    *   Ubicación (mapa preview + dirección).
+    *   Sistema (centrados).
 
 ### 4.4. Estados Visuales (Header)
 *   `status = 'bot'`: Icono Robot, Título "Bot Eficell".
-*   `status = 'waiting'`: Título "Esperando agente...", Animación loading.
-*   `status = 'active'`: Foto Agente (circular), Nombre Agente, Punto Verde 🟢.
-*   `status = 'transfer_email'`: Mensaje sistema "Derivado por email...".
-*   `status = 'inactive'`: Título "Chat finalizado", Punto Negro ⚫.
+*   `status = 'waiting'`: Título "Conectando con algún agente disponible...", Animación loading.
+*   `status = 'active'`: Foto Agente (circular), Nombre Agente, Punto Verde 🟢. Mensaje automático de bienvenida.
+*   `status = 'transfer_email'`: Mensaje sistema "Tu consulta fue derivada por email...".
+*   `status = 'inactive'`: Título "El agente se ha desconectado", Punto Negro ⚫.
 
 ---
 
@@ -188,12 +220,12 @@ Eventos para la barra superior global.
 
 | Acción Agente (App) | Efecto en Firestore | Reacción Usuario (Web) |
 | :--- | :--- | :--- |
-| Click "Atender Consulta" | `status='active'`, `agentId='me'` | Header cambia a Foto Agente. Mensaje "X ha tomado tu sesión". |
+| Click "Atender Consulta" | `status='active'`, `agentId='me'` | Header cambia a Foto Agente. Mensaje "X tomó tu sesión". Auto-msg: "Hola soy X...". |
 | Toggle "Habilitar Audio" | `permissions.allowAudio = true` | Botón Micrófono aparece en barra input. |
 | Envía Ubicación | Crea msg `type='location'` | Aparece burbuja con mapa interactivo y dirección. |
-| Transfiere a otro Agente | `agentId='otro_uid'` | Mensaje "Transferido a [Nuevo Agente]". Cambia foto header. |
+| Transfiere a otro Agente | `agentId='otro_uid'` | Mensaje "Has sido transferido a [Nuevo Agente]". Cambia foto header. |
 | Finaliza Chat | `status='inactive'` | Input se deshabilita (opcional) o Header muestra "Desconectado". |
-| Elimina Mensaje | `msg.deleted = true` | Mensaje desaparece del DOM del usuario. |
+| Elimina Mensaje | `msg.deleted = true` | Mensaje desaparece del DOM del usuario inmediatamente (silencioso). |
 
 ---
 
