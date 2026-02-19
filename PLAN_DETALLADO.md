@@ -136,20 +136,24 @@ Eventos para la barra superior global.
     *   Acción "Eliminar": Borrado lógico (`deleted: true`) para todos (incluye adjuntos).
     *   Confirmación: "¿Eliminar X mensajes?".
     *   **Visual:** El mensaje se elimina silenciosamente del chat (no muestra "eliminado").
+*   **Panel de Adjuntos (al tocar nombre de usuario):**
+    *   Acceso: Al tocar el nombre del usuario en la barra superior.
+    *   Tabs:
+        *   **Archivos:** Sin imágenes, videos ni audios.
+        *   **Media / Audios:** Imágenes, videos y audios.
+        *   **Ubicaciones:** Ubicaciones compartidas.
+    *   Acciones: Descargar, Previsualizar (solo doc/img/vid/audio), Abrir en chat.
 
 ### 3.4. Gestión de Sesiones (Sección 3)
 *   **Lista de Sesiones:** Tabs: "Activas" (🟢), "Inactivas/Bot" (⚫/🤖), "Transferidas" (📧). Indicadores en tiempo real.
 *   **Info de Sesión (Botón ℹ️):**
+    *   Acceso: Desde la Lista de Sesiones (icono ℹ️).
     *   Mostrar metadatos (ID, Hora conexión, Hora último mensaje, IP, Estado, Agente conectado, Transfer email info).
     *   **Toggles de Control Usuario (Default: Off ❌):**
         *   `Switch Adjuntar archivos`: Actualiza `session.permissions.allowFile`.
         *   `Switch Audio`: Actualiza `session.permissions.allowAudio`.
         *   `Switch Ubicación`: Actualiza `session.permissions.allowLocation`.
-    *   **Panel de Adjuntos (Usuario):** Al tocar nombre usuario -> Tabs:
-        *   **Archivos:** Sin imágenes, videos ni audios.
-        *   **Media / Audios:** Imágenes, videos y audios.
-        *   **Ubicaciones:** Ubicaciones compartidas.
-        *   Acciones: Descargar, Previsualizar (solo doc/img/vid/audio), Abrir en chat.
+    *   **Adjuntos del Chat:** Referencia visual (misma data que Panel de Adjuntos).
     *   **Acciones:**
         *   "Desconectarme": Módulo flotante confirmación. Si no hay agentes -> inactiva.
         *   "Eliminar chat": Módulo flotante confirmación. Chat eliminado.
@@ -169,8 +173,9 @@ Eventos para la barra superior global.
 ## 4. Análisis Detallado: Chat Usuario Web (`ChatUsuarioWeb.md`)
 
 ### 4.1. Modos de Visualización
-*   **Standalone (`index.html`):** Layout completo. Header con Botón "Conectar con agente". Botón "Abrir vista burbuja".
-*   **Burbuja (`bubble.html`):** Layout transparente. Burbuja flotante inferior derecha.
+*   **Standalone (`index.html`):** Layout completo.
+    *   **Header:** Botón "Conectar con agente", Botón "Abrir vista burbuja" (🔘), Estado conexión.
+*   **Burbuja (`bubble.html`):** Layout transparente (fondo plano). Burbuja flotante inferior derecha.
     *   **Animación:** Pulso suave cuando hay mensajes nuevos. Badge contador.
     *   Al click -> Abre chat flotante (sin botón conectar, sin botón de bot).
 *   **Persistencia:** Al cargar, verificar `localStorage.getItem('sessionId')`. Si existe -> `getDoc(firestore)`.
@@ -201,7 +206,7 @@ Eventos para la barra superior global.
     *   Previsualización simple con "X" para eliminar (confirmación "¿Eliminar este adjunto?"). **Sin editor.**
     *   Compresión automática.
 *   **Audio Usuario (Simplificado):**
-    *   UI Simple: `Hold` (mantener presionado) para grabar. Soltar (`Pause`) para escuchar. Botones extra: `Trash` (borrar), `Send` (enviar). **Sin reanudar.**
+    *   UI Simple: `Hold` (mantener presionado) para grabar. Soltar (`Pause`) para escuchar (solo pausar, sin reanudar). Botones extra: `Trash` (borrar), `Send` (enviar). **Sin botón resume.**
 *   **Mensajes Recibidos:**
     *   Texto (burbuja).
     *   Imagen (miniatura expandible).
@@ -214,9 +219,29 @@ Eventos para la barra superior global.
 ### 4.4. Estados Visuales (Header)
 *   `status = 'bot'`: Icono Robot, Título "Bot Eficell".
 *   `status = 'waiting'`: Título "Conectando con algún agente disponible...", Animación loading.
-*   `status = 'active'`: Foto Agente (circular), Nombre Agente, Punto Verde 🟢. Mensaje automático de bienvenida.
-*   `status = 'transfer_email'`: Mensaje sistema "Tu consulta fue derivada por email...".
+*   `status = 'active'`: Foto Agente (circular), Nombre Agente, Punto Verde 🟢. Mensaje automático de bienvenida ("Hola, soy X, dame un momento ahora te ayudo").
+*   `status = 'transfer_email'`: Mensaje sistema "Tu consulta fue derivada por email. Recibirás respuesta en [correo]".
 *   `status = 'inactive'`: Título "El agente se ha desconectado", Punto Negro ⚫.
+
+### 4.5. Estructura de Archivos (User Chat)
+Debe seguir estrictamente el esquema proporcionado:
+```
+user-chat/
+├── index.html          ← Chat standalone (bot + conectar)
+├── bubble.html         ← Fondo plano + burbuja
+├── css/
+│   ├── chat.css
+│   ├── bubble.css
+│   └── themes.css
+├── js/
+│   ├── chat.js         ← Lógica del chat
+│   ├── bot.js          ← Simulación del bot
+│   ├── bubble.js       ← Lógica de la burbuja
+│   ├── session.js      ← Persistencia de sesión
+│   └── websocket.js    ← Conexión en tiempo real (Firebase Listener)
+└── assets/
+    └── icons/
+```
 
 ---
 
