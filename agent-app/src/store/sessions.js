@@ -1,5 +1,11 @@
 import { defineStore } from 'pinia';
+import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, query, onSnapshot, where } from 'firebase/firestore';
+import { firebaseConfig } from '../firebase-config.js';
+
+// Init Firebase once
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 export const useSessionsStore = defineStore('sessions', {
   state: () => ({
@@ -9,7 +15,6 @@ export const useSessionsStore = defineStore('sessions', {
   }),
   actions: {
     initListener() {
-      const db = getFirestore();
       // Listen to all sessions (simplified)
       const q = query(collection(db, "sessions"));
 

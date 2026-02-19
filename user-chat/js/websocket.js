@@ -3,14 +3,14 @@ import { getFirestore, collection, doc, onSnapshot, addDoc, updateDoc, setDoc, q
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// REEMPLAZAR CON TU CONFIGURACIÓN REAL
 const firebaseConfig = {
-  apiKey: "API_KEY",
-  authDomain: "PROJECT_ID.firebaseapp.com",
-  projectId: "PROJECT_ID",
-  storageBucket: "PROJECT_ID.appspot.com",
-  messagingSenderId: "SENDER_ID",
-  appId: "APP_ID"
+    apiKey: "AIzaSyAqO2_80YsxHbQLgruX5D9B1gukuSAbIkA",
+    authDomain: "eficell-webchat.firebaseapp.com",
+    projectId: "eficell-webchat",
+    storageBucket: "eficell-webchat.firebasestorage.app",
+    messagingSenderId: "436575436281",
+    appId: "1:436575436281:web:d2175f11766ddbeebe1128",
+    measurementId: "G-9NXGB74WKM"
 };
 
 const app = initializeApp(firebaseConfig);
