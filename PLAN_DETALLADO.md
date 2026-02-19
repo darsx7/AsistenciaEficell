@@ -189,26 +189,84 @@ Eventos para la barra superior global.
 ## 4. Análisis Detallado: Chat Usuario Web (`ChatUsuarioWeb.md`)
 
 ### 4.1. Modos de Visualización
-*   **Standalone (`index.html`):** Layout completo.
-    *   **Header:** Botón "Conectar con agente", Botón "Abrir vista burbuja" (🔘), Estado conexión.
-*   **Burbuja (`bubble.html`):** Layout transparente (fondo plano). Burbuja flotante inferior derecha.
-    *   **Animación:** Pulso suave cuando hay mensajes nuevos. Badge contador.
-    *   Al click -> Abre chat flotante (sin botón conectar, sin botón de bot).
-*   **Persistencia:** Al cargar, verificar `localStorage.getItem('sessionId')`. Si existe -> `getDoc(firestore)`.
-    *   Si hay sesión previa: Mostrar Modal "Reanudar / Nueva sesión".
-    *   "Reanudar": Cargar historial `messages`.
-    *   "Nueva": Borrar ID, iniciar limpio (fase Bot).
-    *   Compartida entre standalone y burbuja.
+
+```mermaid
+flowchart LR
+    A["Chat Standalone\n(con bot + botón conectar)"] --> B["Botón para abrir\nvista burbuja"]
+    B --> C["Página fondo plano\n+ burbuja"]
+    C -->|Click burbuja| D["Chat flotante\n(sin botón de bot)"]
+```
+
+#### 4.1.1 Vista: Chat Standalone (Página Completa)
+
+```mermaid
+flowchart TB
+    subgraph ChatPage["Página de Chat"]
+        subgraph Header["Barra Superior"]
+            BotName["🤖 Bot Eficell / 👤 Nombre agente"]
+            Status["Estado de conexión"]
+            BubbleBtn["🔘 Abrir vista burbuja"]
+        end
+        subgraph Messages["Área de Mensajes"]
+            BotMsgs["Mensajes del bot / agente"]
+            UserMsgs["Mensajes del usuario (solo texto)"]
+        end
+        subgraph InputBar["Barra de Entrada"]
+            TextInput["Campo de texto"]
+            SendBtn["📤 Enviar"]
+            ConnectBtn["🔗 Conectar con agente"]
+        end
+    end
+```
+
+#### 4.1.2 Vista: Burbuja Embebible
+
+```mermaid
+flowchart TB
+    subgraph BubblePage["Página con Fondo Plano"]
+        BG["Fondo plano"]
+        Bubble["💬 Burbuja\n(inferior derecha)"]
+    end
+
+    Bubble -->|Click| ChatWindow["Chat Flotante"]
+
+    subgraph ChatWindow["Chat Flotante"]
+        CW_Header["Foto + Nombre + Estado + ✕"]
+        CW_Messages["Mensajes"]
+        CW_Input["Campo de texto + 📤"]
+    end
+
+    ChatWindow -->|✕| Bubble
+```
 
 ### 4.2. Lógica del Bot (Pre-conexión)
-*   Estado inicial `status = 'bot'`.
-*   Usuario escribe -> `bot.js` detecta input -> `setTimeout` -> Respuesta predefinida ("mensaje de bot").
-*   **Botón Conectar (Standalone):**
-    *   Click -> Mensaje Bot "¿Deseas conectar con un agente? Sí / No".
-    *   Usuario "Sí" -> Mensaje auto "Conectando con algún agente disponible..." -> Notifica agentes -> Estado `waiting`.
-    *   Usuario "No" -> Bot "¿Nueva consulta o deseas seguir?".
-        *   "Nueva consulta" -> Separador visual "--- Nueva consulta ---".
-        *   "Seguir" -> Vuelve al chat con bot.
+
+```mermaid
+flowchart TB
+    User["Usuario escribe\ncualquier cosa"] --> Bot["Bot responde:\n'mensaje de bot'"]
+    Bot --> User
+    ConnectBtn["🔗 Botón:\nConectar con agente"] --> ConfirmMsg["Bot pregunta:\n'¿Deseas conectar con\nun agente? Sí / No'"]
+    ConfirmMsg -->|Sí| AutoMsg["Mensaje auto:\n'Conectando con algún\nagente disponible...'"]
+    ConfirmMsg -->|No| AskNew["Bot pregunta:\n'¿Nueva consulta o\ndeseas seguir?'"]
+    AskNew -->|Nueva consulta| Separator["Línea separadora:\n'--- Nueva consulta ---'"]
+    Separator --> Bot
+    AskNew -->|Seguir| Bot
+    AutoMsg --> Notif["Envía notificación\na los agentes"]
+    Notif --> Wait["Estado: Esperando agente..."]
+```
+
+| Fase | Comportamiento |
+|---|---|
+| **Bot activo** | Usuario escribe → respuesta automática: *"mensaje de bot"* |
+| **Botón conectar** | Solo en standalone. Envía mensaje pidiendo confirmación |
+| **Confirmación** | Bot pregunta *"¿Deseas conectar con un agente?"* → Sí/No |
+| **Sí** | Envía mensaje auto + notifica agentes |
+| **No** | Bot pregunta *"¿Nueva consulta o deseas seguir?"* |
+| **Nueva consulta** | Agrega línea separadora en el chat (historial se mantiene) |
+| **Seguir** | Vuelve al chat con el bot sin cambios |
+| **Esperando** | Animación de espera hasta que un agente se conecte |
+
+> **Nota:** La simulación del bot es un placeholder. El usuario podrá integrar su bot real aquí después. Cada sesión de chat se guarda con un **ID único**.
 
 ### 4.3. Interfaz de Chat y Input
 *   **Restricción Default:** Solo input texto visible.
@@ -233,6 +291,18 @@ Eventos para la barra superior global.
     *   Sistema (centrados).
 
 ### 4.4. Estados Visuales (Header)
+
+```mermaid
+stateDiagram-v2
+    [*] --> Bot: Chat inicia\ncon simulación de bot
+    Bot --> Esperando: Usuario presiona\n"Conectar con agente"
+    Esperando --> Conectado: Agente acepta\nla sesión
+    Conectado --> Transferido: Agente transfiere\na otro agente
+    Transferido --> Conectado: Nuevo agente conecta
+    Conectado --> TransfEmail: Transferido a email
+    Conectado --> Desconectado: Agente se desconecta
+```
+
 *   `status = 'bot'`: Icono Robot, Título "Bot Eficell".
 *   `status = 'waiting'`: Título "Conectando con algún agente disponible...", Animación loading.
 *   `status = 'active'`: Foto Agente (circular), Nombre Agente, Punto Verde 🟢. Mensaje automático de bienvenida ("Hola, soy [Agente], dame un momento ahora te ayudo").
