@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "description": "Sistema de Chat Eficell - Monorepo",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "predeploy": "npm run build:agent && npm run prepare:public",
+    "build:agent": "cd agent-app && npm install && npm run build",
+    "prepare:public": "rm -rf public_root/* && cp -r user-chat/* public_root/ && mkdir -p public_root/agente && cp -r agent-app/dist/* public_root/agente/",
+    "deploy": "npm run predeploy && firebase deploy"
   },
   "author": "",
   "license": "ISC"

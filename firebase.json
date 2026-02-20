@@ -6,30 +6,18 @@
   "storage": {
     "rules": "storage.rules"
   },
-  "hosting": [
-    {
-      "target": "user",
-      "public": "user-chat",
-      "ignore": [
-        "firebase.json",
-        "**/.*",
-        "**/node_modules/**"
-      ]
-    },
-    {
-      "target": "agent",
-      "public": "agent-app/dist",
-      "ignore": [
-        "firebase.json",
-        "**/.*",
-        "**/node_modules/**"
-      ],
-      "rewrites": [
-        {
-          "source": "**",
-          "destination": "/index.html"
-        }
-      ]
-    }
-  ]
+  "hosting": {
+    "public": "public_root",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/agente/**",
+        "destination": "/agente/index.html"
+      }
+    ]
+  }
 }
