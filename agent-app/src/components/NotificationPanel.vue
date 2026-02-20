@@ -19,7 +19,6 @@
         ></f7-list-item>
 
         <f7-list-item title="Leídas" group-title></f7-list-item>
-        <!-- Mock read notifications or load from store -->
       </f7-list>
     </f7-page>
   </f7-popup>
@@ -27,6 +26,7 @@
 
 <script>
 import { useSessionsStore } from '../store/sessions.js';
+import { AgentFirebaseService } from '../services/firebase.js';
 import { f7 } from 'framework7-vue';
 
 export default {
@@ -46,29 +46,46 @@ export default {
   },
   methods: {
     onClose() {
-      // Mark as read logic would go here
-      console.log("Panel closed, marking as read...");
+      // Mark all visible notifications as read
+      this.unreadNotifications.forEach(n => {
+          AgentFirebaseService.markNotificationRead(n.id);
+      });
     },
-    handleClick(notif) {
+    async handleClick(notif) {
       const store = useSessionsStore();
       const session = store.sessions.find(s => s.id === notif.sessionId);
-      if (!session) return;
 
-      // Logic from 1.1
-      if (session.agentId && session.agentId !== 'me') { // 'me' should be real UID
+      if (!session) return; // Session might be deleted
+
+      // 1.1 Access Logic
+      const myId = 'me'; // TODO: Get from Auth
+
+      if (session.agentId && session.agentId !== myId) {
          f7.dialog.confirm(`Está ${session.agentId} conectado. ¿Desea visualizar?`, () => {
-             // Go readonly
-             f7.views.main.router.navigate(`/chat/${session.id}?readonly=true`);
+             f7.views.main.router.navigate(`/chat/${session.id}`); // Readonly logic to be handled by ChatPage
              this.isOpened = false;
          });
+      } else if (session.agentId === myId) {
+          f7.views.main.router.navigate(`/chat/${session.id}`);
+          this.isOpened = false;
+      } else if (session.status === 'inactive') {
+          f7.dialog.confirm('La sesión está inactiva. ¿Desea entrar al chat?', () => {
+              f7.views.main.router.navigate(`/chat/${session.id}`);
+              this.isOpened = false;
+          });
       } else if (session.status === 'waiting') {
-          f7.dialog.confirm('¿Desea atender esta consulta?', () => {
-              // Take session logic
+          f7.dialog.confirm('¿Desea atender esta consulta?', async () => {
+              // Take Session
+              await AgentFirebaseService.takeSession(session.id, myId, 'Agente');
+              f7.views.main.router.navigate(`/chat/${session.id}`);
+              this.isOpened = false;
+          });
+      } else if (session.status === 'bot') {
+          f7.dialog.confirm('Sesión activa con bot. ¿Desea visualizar?', () => {
               f7.views.main.router.navigate(`/chat/${session.id}`);
               this.isOpened = false;
           });
       }
-      // ... handle other cases
     }
   }
 };
