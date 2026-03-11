@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistencia Eficell - Burbuja</title>
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/bubble.css">
+    <link rel="stylesheet" href="css/chat.css">
+</head>
+<body class="bubble-mode">
+    <!-- Fondo plano simulado -->
+    <div id="page-background">
+        <h1>Sitio Web del Cliente</h1>
+        <p>Esta es una página de ejemplo donde se integra la burbuja.</p>
+    </div>
+
+    <!-- Bubble Trigger -->
+    <div id="chat-bubble" class="bubble-closed">
+        <span id="bubble-badge" class="badge hidden">0</span>
+        <div class="bubble-icon">💬</div>
+    </div>
+
+    <!-- Chat Window (Hidden by default) -->
+    <div id="chat-window" class="hidden">
+        <header id="chat-header">
+            <div class="header-info">
+                <div id="agent-avatar" class="avatar robot">🤖</div>
+                <div class="header-text">
+                    <h1 id="header-title">Bot Eficell</h1>
+                    <span id="header-status">Online</span>
+                </div>
+            </div>
+            <button id="btn-close-chat" title="Cerrar chat">✕</button>
+        </header>
+
+        <div id="messages-area">
+            <!-- Messages -->
+        </div>
+
+        <footer id="input-bar">
+            <!-- No connect button here per specs -->
+            <div id="input-container">
+                <button id="btn-attach" class="icon-btn hidden">📎</button>
+                <input type="text" id="message-input" placeholder="Escribe...">
+                <button id="btn-mic" class="icon-btn hidden">🎙️</button>
+                <button id="btn-send" class="icon-btn">📤</button>
+            </div>
+        </footer>
+    </div>
+
+    <script type="module" src="js/bubble.js"></script>
+    <script type="module" src="js/chat.js"></script>
+</body>
+</html>

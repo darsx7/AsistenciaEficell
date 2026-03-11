@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistencia Eficell</title>
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/chat.css">
+</head>
+<body class="standalone-mode">
+    <div id="chat-page">
+        <!-- Header -->
+        <header id="chat-header">
+            <div class="header-info">
+                <div id="agent-avatar" class="avatar robot">🤖</div>
+                <div class="header-text">
+                    <h1 id="header-title">Bot Eficell</h1>
+                    <span id="header-status">Estado de conexión</span>
+                </div>
+            </div>
+            <button id="btn-open-bubble" title="Abrir vista burbuja">🔘</button>
+        </header>
+
+        <!-- Messages Area -->
+        <div id="messages-area">
+            <!-- Messages will be injected here -->
+            <div class="message system">
+                <p>Bienvenido al soporte de Eficell.</p>
+            </div>
+        </div>
+
+        <!-- Input Bar -->
+        <footer id="input-bar">
+            <!-- Connect Button (Standalone only) -->
+            <div id="connect-container">
+                <button id="btn-connect" class="primary-btn">🔗 Conectar con agente</button>
+            </div>
+
+            <div id="input-container">
+                <button id="btn-attach" class="icon-btn hidden" title="Adjuntar">📎</button>
+                <input type="text" id="message-input" placeholder="Escribe tu mensaje...">
+                <button id="btn-mic" class="icon-btn hidden" title="Grabar audio">🎙️</button>
+                <button id="btn-send" class="icon-btn">📤</button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Firebase SDKs (using CDN for simplicity in vanilla, usually we use modules) -->
+    <!-- Ideally we use ES modules in js/ -->
+    <script type="module" src="js/chat.js"></script>
+</body>
+</html>
